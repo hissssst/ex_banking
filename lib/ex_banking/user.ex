@@ -42,7 +42,8 @@ defmodule ExBanking.User do
   @dialyzer {:nowarn_function, [
     loop_transaction: 4,
     loop_normal: 3,
-    start_link: 1
+    start_link: 1,
+    init: 3 # Some dialyzer bug here
   ]}
 
   @transaction_timeout if Mix.env() == :dev, do: 100_000, else: 5_000
@@ -146,7 +147,7 @@ defmodule ExBanking.User do
 
   # Naming and start_link
 
-  @spec server_name(ExBanking.user()):: Tuple.t()
+  @spec server_name(ExBanking.user()) :: {:via, Registry, {UsersRegistry, ExBanking.user()}}
   def server_name(username) do
     {:via, Registry, {UsersRegistry, username}}
   end
@@ -160,17 +161,15 @@ defmodule ExBanking.User do
 
   @spec handle_call(any(), Core.from(), state()) :: {:ok, state()} | {:stop, any(), state()}
   defp handle_call({:wallet_action, action, args}, from, state) do
-    IO.inspect state, label: :here
     {:ok, wallet_action(state, from, action, args)}
   end
   defp handle_call(other, _, state) do
-    IO.inspect other, lanel: :bad_call
     {:ok, state}
   end
 
   @spec terminate(state(), Core.parent(), Core.Debug.t(), any()) :: no_return()
   defp terminate(state, parent, debug, reason) do
-    event = { :EXIT, reason }
+    event = {:EXIT, reason}
     Core.stop(__MODULE__, state, parent, debug, reason, event)
   end
 
@@ -204,9 +203,11 @@ defmodule ExBanking.User do
       Core.init_ack()
       loop_normal(state, parent, debug)
     else
-      :error -> Core.init_stop(__MODULE__, parent, debug, opts, {:error, :no_username})
-      {:error, other}  -> Core.init_stop(__MODULE__, parent, debug, opts, other)
-      other  -> Core.init_stop(__MODULE__, parent, debug, opts, other)
+      {:error, other} ->
+        Core.init_stop(__MODULE__, parent, debug, opts, other)
+      :error ->
+        Core.init_stop(__MODULE__, parent, debug, opts, {:error, :no_username})
+      #other  -> Core.init_stop(__MODULE__, parent, debug, opts, other)
     end
   end
 

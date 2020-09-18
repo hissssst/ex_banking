@@ -1,7 +1,7 @@
 defmodule ExBanking do
 
   @moduledoc """
-  Documentation for `ExBanking`.
+  ExBanking
   """
 
   alias ExBanking.User

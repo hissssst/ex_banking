@@ -23,10 +23,10 @@ defmodule ExBanking.WalletTest do
   test "multiple add test" do
     assert {:ok, wallet} = Wallet.new()
     assert {wallet, _} = Wallet.add(wallet,     10   , "USD")
-    assert {wallet, _} = Wallet.add(wallet, 100000   , "USD")
-    assert {wallet, _} = Wallet.add(wallet, 100000   , "USD")
+    assert {wallet, _} = Wallet.add(wallet, 100_000   , "USD")
+    assert {wallet, _} = Wallet.add(wallet, 100_000   , "USD")
     assert {wallet, _} = Wallet.add(wallet,      0.01, "USD")
-    assert {^wallet, {:ok, 200010.01}} = Wallet.get(wallet, "USD")
+    assert {^wallet, {:ok, 200_010.01}} = Wallet.get(wallet, "USD")
   end
 
   test "Different currencies test" do
@@ -44,12 +44,12 @@ defmodule ExBanking.WalletTest do
   test "Random test" do
     assert {:ok, wallet} = Wallet.new()
     Enum.reduce(1..10_000, wallet, fn _, wallet ->
-      x = :rand.uniform(10000) / 100
+      x = :rand.uniform(10_000) / 100
       assert {wallet, {:ok, _}} = Wallet.add(wallet, x, "USD")
 
       assert {wallet, {:ok, v}} = Wallet.get(wallet, "USD")
 
-      x = :rand.uniform(10000) / 100
+      x = :rand.uniform(10_000) / 100
       if x > v do
         assert {wallet, {:error, :not_enough_money}} = Wallet.sub(wallet, x, "USD")
         wallet
@@ -63,9 +63,9 @@ defmodule ExBanking.WalletTest do
   test "Decimal precision" do
     assert {:ok, wallet} = Wallet.new()
     assert {wallet, {:ok, _}} = Wallet.add(wallet, 10, "USD")
-    assert {wallet, {:ok, 1000}} = Wallet.get(wallet, "USD", decimal: true)
+    assert {wallet, {:ok, 1_000}} = Wallet.get(wallet, "USD", decimal: true)
     assert {wallet, {:ok, _}} = Wallet.add(wallet, 10, "USD")
-    assert {wallet, {:ok, 2000}} = Wallet.get(wallet, "USD", decimal: true)
+    assert {wallet, {:ok, 2_000}} = Wallet.get(wallet, "USD", decimal: true)
   end
 
 end

@@ -98,6 +98,7 @@ defmodule ExBanking.Wallet do
     end
   end
 
+  @spec power(pos_integer(), non_neg_integer(), pos_integer()) :: pos_integer()
   defp power(int, power, acc \\ 1)
   defp power(_, 0, acc), do: acc
   defp power(int, power, acc) do

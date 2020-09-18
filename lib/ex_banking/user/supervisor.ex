@@ -1,5 +1,10 @@
 defmodule ExBanking.User.Supervisor do
 
+  @moduledoc """
+  This supervisor starts Registry and DynamicSupervisor for
+  supervising user's processes
+  """
+
   use Supervisor
 
   alias ExBanking.User
