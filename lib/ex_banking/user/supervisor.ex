@@ -10,7 +10,6 @@ defmodule ExBanking.User.Supervisor do
   alias ExBanking.User
   alias ExBanking.User.PendingLimit
 
-
   def start_link(opts \\ []) do
     Supervisor.start_link(__MODULE__, opts, name: __MODULE__)
   end

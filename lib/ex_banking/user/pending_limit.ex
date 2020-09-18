@@ -6,7 +6,7 @@ defmodule ExBanking.User.PendingLimit do
   """
 
   @spec new() :: __MODULE__
-  def new() do
+  def new do
     :ets.new(__MODULE__, [
       :named_table, :public,
       write_concurrency: true,

@@ -32,9 +32,9 @@ defmodule ExBanking.User do
   use Core.Sys
 
   require Pathex
-  alias ExBanking.Wallet
   alias ExBanking.User.PendingLimit
   alias ExBanking.User.Supervisor, as: UserSupervisor
+  alias ExBanking.Wallet
 
   import ExBanking, only: [is_user: 1]
 
@@ -297,7 +297,7 @@ defmodule ExBanking.User do
 
   defp set_transaction_id(state, id), do: %{state | transaction_id: id}
 
-  defp wallet_lense() do
+  defp wallet_lense do
     Pathex.path :user_data / :wallet, :map
   end
 
