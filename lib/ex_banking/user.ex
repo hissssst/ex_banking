@@ -163,7 +163,7 @@ defmodule ExBanking.User do
   defp handle_call({:wallet_action, action, args}, from, state) do
     {:ok, wallet_action(state, from, action, args)}
   end
-  defp handle_call(other, _, state) do
+  defp handle_call(_other, _, state) do
     {:ok, state}
   end
 
