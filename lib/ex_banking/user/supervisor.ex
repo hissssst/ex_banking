@@ -3,6 +3,8 @@ defmodule ExBanking.User.Supervisor do
   use Supervisor
 
   alias ExBanking.User
+  alias ExBanking.User.PendingLimit
+
 
   def start_link(opts \\ []) do
     Supervisor.start_link(__MODULE__, opts, name: __MODULE__)
@@ -10,6 +12,7 @@ defmodule ExBanking.User.Supervisor do
 
   @impl true
   def init(opts) do
+    PendingLimit.new()
     [
       users_supervisor_spec(opts),
       registry_spec(opts)
@@ -17,9 +20,8 @@ defmodule ExBanking.User.Supervisor do
     |> Supervisor.init(strategy: :rest_for_one)
   end
 
-  defp registry_spec(opts) do
-    partitions = opts[:registry_partitions] || System.schedulers_online()
-    opts = [name: UsersRegistry, keys: :unique, partitions: partitions]
+  defp registry_spec(_opts) do
+    opts = [name: UsersRegistry, keys: :unique]
     %{
       id: :users_registry,
       type: :worker,

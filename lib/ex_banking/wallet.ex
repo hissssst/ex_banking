@@ -33,14 +33,16 @@ defmodule ExBanking.Wallet do
     {:ok, %__MODULE__{precision: precision, pow: power(10, precision)}}
   end
 
-  @spec add(t(), number(), currency()) :: {t(), :ok}
+  @spec add(t(), number(), currency()) :: {t(), {:ok, number()}}
   def add(%__MODULE__{} = wallet, amount, currency) do
     amount = to_decimal(amount, wallet)
     lense = currency_lense(currency)
-    {force_update(lense, wallet, amount, & &1 + amount), :ok}
+    wallet = force_update(lense, wallet, amount, & &1 + amount)
+    {:ok, newvalue} = Pathex.view(lense, wallet)
+    {wallet, {:ok, to_float(newvalue, wallet)}}
   end
 
-  @spec sub(t(), number(), currency()) :: {t(), :ok | :not_enough_money}
+  @spec sub(t(), number(), currency()) :: {t(), {:ok, number()} | {:error, :not_enough_money}}
   def sub(%__MODULE__{} = wallet, amount, currency) do
     amount = to_decimal(amount, wallet)
     lense = currency_lense(currency)
@@ -50,24 +52,24 @@ defmodule ExBanking.Wallet do
     ) do
       new_value = value - amount
       {:ok, wallet} = Pathex.set(lense, wallet, new_value)
-      {wallet, :ok}
+      {wallet, {:ok, to_float(new_value, wallet)}}
     else
-      _ -> {wallet, :not_enough_money}
+      _ -> {wallet, {:error, :not_enough_money}}
     end
   end
 
-  @spec get(t(), currency(), [get_option()]) :: {t(), float() | decimal()}
+  @spec get(t(), currency(), [get_option()]) :: {t(), {:ok, float() | decimal()}}
   def get(wallet, currency, opts \\ [])
   def get(%__MODULE__{} = wallet, currency, decimal: true) do
     case Pathex.view(currency_lense(currency), wallet) do
-      {:ok, value} -> {wallet, value}
-      :error       -> {wallet, 0}
+      {:ok, value} -> {wallet, {:ok, value}}
+      :error       -> {wallet, {:ok, 0}}
     end
   end
   def get(%__MODULE__{} = wallet, currency, _) do
     case Pathex.view(currency_lense(currency), wallet) do
-      {:ok, value} -> {wallet, to_float(value, wallet)}
-      :error       -> {wallet, 0.00}
+      {:ok, value} -> {wallet, {:ok, to_float(value, wallet)}}
+      :error       -> {wallet, {:ok, 0.00}}
     end
   end
 
